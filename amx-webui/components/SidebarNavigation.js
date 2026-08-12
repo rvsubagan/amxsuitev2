@@ -8,6 +8,7 @@ export default function SidebarNavigation({ sidebarOpen, setSidebarOpen }) {
     { icon: '🏠', label: 'Dashboard', href: '/' },
     { icon: '🖥️', label: 'CC AMX', href: '/cc-amx' },
     { icon: '🖥️', label: 'Alps1 AMX', href: '/alps1-amx' },
+    { icon: '🖥️', label: 'Status', href: '/monitoring' },
     // { icon: '🎫', label: 'Tickets', href: '/tickets' },
   ];
 

@@ -1147,33 +1147,6 @@ const CHANNEL_DESCRIPTIONS = {
             </div>
 
             {/* Video Routing Control Section */}    
-            <div className="card bg-base-200 shadow-md">
-              <div className="card-body">
-                <h2 className="text-lg font-semibold text-accent mb-4">
-                  CHANNEL PRESETS
-                </h2>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <button className="btn btn-sm btn-info" onClick={handleSendNews1}>NEWS 1</button>
-                  <button className="btn btn-sm btn-success" onClick={handleSendNews2}>NEWS 2</button>
-                  <button className="btn btn-sm btn-warning" onClick={handleSendNews3}>NEWS 3</button>
-
-                  <button className="btn btn-sm btn-info" onClick={handleSendEmedia}>E-MEDIA</button>
-                  <button className="btn btn-sm btn-success" onClick={handleSendSecurity}>SECURITY</button>
-                  <button className="btn btn-sm btn-warning" onClick={handleSendWSM1}>WSM 1</button>
-
-                  <button className="btn btn-sm btn-info" onClick={handleSendWSM2}>WSM 2</button>
-                  <button className="btn btn-sm btn-success" onClick={handleSendWSM3}>WSM 3</button>
-                  <button className="btn btn-sm btn-warning" onClick={handleSendMovies}>MOVIES</button>
-                  <button className="btn btn-sm btn-info" onClick={handleSendKids}>KIDS</button>
-                </div>
-              </div>
-            </div>
-            {/* End of Video Routing Control Section */}
-          </div>
-
-          <div className="max-h-[660px] overflow-y-auto space-y-4">
-            {/* Video Routing Control Section */}
             <div className="card bg-base-200 shadow-2xl">
               <div className="card-body space-y-4">
                 <h2 className="card-title text-lg text-accent">VIDEO ROUTING CONTROL</h2>
@@ -1231,6 +1204,11 @@ const CHANNEL_DESCRIPTIONS = {
                 )}
               </div>
             </div>
+            {/* End of Video Routing Control Section */}
+          </div>
+
+          <div className="max-h-[660px] overflow-y-auto space-y-4">
+
             {/* Audio Select Section */}
             <div className="card bg-base-200 shadow-md">
               <div className="card-body">
@@ -1259,6 +1237,7 @@ const CHANNEL_DESCRIPTIONS = {
                 </div>
               </div>
             </div>
+
             {/* Channel Presets Section */}
             <div className="card bg-base-200 shadow-md">
               <div className="card-body">
