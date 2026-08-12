@@ -1,0 +1,21 @@
+streams:
+  cam1:
+    - rtsp://172.18.90.190/stream0?transport=tcp#audio=none
+    - ffmpeg:cam1#video=h264#audio=opus
+
+  cam2:
+    - rtsp://172.18.92.92/stream0?transport=tcp#audio=none
+    - ffmpeg:cam2#video=h264#audio=opus
+
+api:
+  listen: ":1984"
+  origins:
+    - "*"
+
+webrtc:
+  listen: ":8555"
+  candidates:
+    - 172.18.61.53:8555
+    - stun:stun.l.google.com:19302
+  tcp: true
+  udp: false

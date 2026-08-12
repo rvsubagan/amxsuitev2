@@ -1,0 +1,39 @@
+# --- amx-webui (Next.js) ---
+/amx-webui/node_modules
+/amx-webui/.pnp
+/amx-webui/.pnp.js
+/amx-webui/.yarn/install-state.gz
+/amx-webui/coverage
+/amx-webui/.next/
+/amx-webui/out/
+/amx-webui/build
+/amx-webui/.DS_Store
+/amx-webui/*.pem
+/amx-webui/npm-debug.log*
+/amx-webui/yarn-debug.log*
+/amx-webui/yarn-error.log*
+/amx-webui/.env*.local
+/amx-webui/.vercel
+/amx-webui/*.tsbuildinfo
+/amx-webui/next-env.d.ts
+
+# --- Backend (Node.js) ---
+/backend/node_modules
+/backend/.DS_Store
+/backend/*.log
+/backend/.env*
+
+# --- Backend2 (Node.js) ---
+/backend2/node_modules
+/backend2/.DS_Store
+/backend2/*.log
+/backend2/.env*
+
+# Exclude streamserver output files
+/amx-webui/public/localstream/*
+!/amx-webui/public/localstream/.gitkeep
+/amx-webui/public/ccstream/*
+!/amx-webui/public/ccstream/.gitkeep
+
+
+**/.DS_Store

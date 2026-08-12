@@ -1,0 +1,16 @@
+{
+  "name": "amx-backend",
+  "version": "1.0.0",
+  "description": "AMX Router Backend for the AMX Management Suite Portal Web Application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Ryan Dave Velasco Subagan",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

@@ -1,0 +1,5 @@
+FROM alexxit/go2rtc:latest
+
+COPY go2rtc.yaml /config/go2rtc.yaml
+
+CMD ["go2rtc", "-config", "/config/go2rtc.yaml"]

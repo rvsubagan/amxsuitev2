@@ -1,0 +1,19 @@
+{
+  "name": "iptv-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Ryan Dave Velasco Subagan",
+  "license": "ISC",
+  "description": "IPTV Backend for the AMX Management Suite Portal Web Application",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "telnet-client": "^2.2.5"
+  }
+}
