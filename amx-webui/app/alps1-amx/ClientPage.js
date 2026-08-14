@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
+import toast from 'react-hot-toast';
 import SidebarNavigation from '@/components/SidebarNavigation';
 
 export default function Home({ session }) {
@@ -33,6 +34,7 @@ export default function Home({ session }) {
 
   const username = session?.user?.name || session?.user?.email || 'User';
 
+  // Switch Stream
   const switchStream = async () => {
   if (busy) return;
   setBusy(true);
@@ -52,13 +54,16 @@ export default function Home({ session }) {
     const data = await res.json();
 
     if (res.ok) {
-      setStatus(`✅ Switched decoder ${selectedDecoder} to stream ${selectedStream}`);
+      //setStatus(`✅ Switched decoder ${selectedDecoder} to stream ${selectedStream}`);
+      toast.success(`Switched decoder successfully!`);
     } else {
       setStatus(`⚠️ Command sent, but controller did not respond`);
+      toast.error(`Failed to switch decoder!`);
     }
 
   } catch (err) {
     setStatus(`❌ Network error: ${err.message}`);
+    toast.error(`Network error!`);
   } finally {
     setBusy(false); // ✅ ALWAYS re-enable
   }
@@ -89,11 +94,14 @@ export default function Home({ session }) {
       const data = await res.json();
       if (res.ok) {
         setStatus(`✅ Successfully rebooted ${ip} (IPTV ${iptvNumber}).`);
+        toast.success(`Successfully rebooted IPTV!`);
       } else {
         setStatus(`❌ Reboot failed: ${data.error || 'Unknown error'}`);
+        toast.error(`Failed to reboot IPTV!`);
       }
     } catch (err) {
       setStatus(`❌ Network Error: ${err.message}`);
+      toast.error(`Network error!`);
     } finally {
       setRebootLoading(false);
     }
@@ -122,15 +130,19 @@ const handleConfirmAction = async () => {
       const data = await res.json();
       if (res.ok) {
         setStatus(`✅ Port ${modalIptvNumber} reset successfully.`);
+        toast.success(`Port reset successfully!`);
       } else {
         setStatus(`❌ Port reset failed: ${data.error || 'Unknown error'}`);
+        toast.error(`Failed to reset port!`);
       }
     } catch (err) {
       setStatus(`❌ Network error: ${err.message}`);
+      toast.error(`Network error!`);
     }
   } 
   else {
     setStatus(`⚠️ Action ${modalAction} is not supported for IPTV ${modalIptvNumber}.`);
+    toast.error(`Action not supported!`);
   }
 };
 
@@ -862,8 +874,10 @@ const handleUpdateIptvChannel2 = async () => {
     setUpdateStatus(
       `✅ IPTV (${updateIptvIp}) updated to ${selectedChannel.name}`
     );
+    toast.success(`IPTV updated to ${selectedChannel.name} successfully!`);
   } catch (err) {
     setUpdateStatus(`❌ Failed: ${err.message}`);
+    toast.error(`Failed to update IPTV!`);
   } finally {
     setUpdateLoading(false);
   }
@@ -893,7 +907,7 @@ const handleUpdateIptvChannel2 = async () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[60%_40%] gap-10">
           <div className="space-y-8">
             <div className="w-full aspect-video bg-black rounded-lg relative border border-base-content/30 shadow-md overflow-hidden">
               <iframe
@@ -905,7 +919,12 @@ const handleUpdateIptvChannel2 = async () => {
               />
             </div>
 
-            {/* Stream Switcher */}
+          </div>
+
+          
+          <div className="max-h-[660px] overflow-y-auto space-y-4">
+
+             {/* Stream Switcher */}
             <div className="card bg-base-200 shadow-2xl">
               <div className="card-body space-y-4">
                 <h2 className="card-title text-lg text-accent">VIDEO ROUTING CONTROL</h2>
@@ -948,60 +967,14 @@ const handleUpdateIptvChannel2 = async () => {
                     Set Stream
                   </button>
                 </div>
-
-                {status && (
-                  <div className="alert alert-info mt-4 text-sm break-words">
-                    <span>{status}</span>
-                  </div>
-                )}
               </div>
-            </div>
-          </div>
+            </div>  
 
-          {/* IPTV Reboot Section */}
-          <div className="max-h-[660px] overflow-y-auto space-y-4">
-            {Array.from({ length: 28 }, (_, i) => {
-              const iptvNumber = i + 1;
-              const label = `IPTV ${iptvNumber}`;
-              return (
-                <div key={iptvNumber} className="card bg-base-200 shadow-md">
-                  <div className="card-body flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <h3 className="text-lg font-semibold text-accent">{label}</h3>
-                    <div className="flex gap-3">
-                      <button
-                        disabled={rebootLoading && modalIptvNumber === iptvNumber}
-                        className="btn btn-sm btn-warning"
-                        onClick={() => openConfirmation('Reboot', iptvNumber)}
-                      >
-                        {rebootLoading && modalIptvNumber === iptvNumber ? 'Rebooting...' : 'Reboot'}
-                      </button>
-                      <button className="btn btn-sm btn-error" onClick={() => openConfirmation('Port Reset', iptvNumber)}>
-                        Port Reset
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div className="card bg-base-200 shadow-md">
-              <div className="card-body">
-                <h2 className="text-lg font-semibold text-accent mb-4">
-                  CHANNEL PRESETS
-                </h2>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <button className="btn btn-sm btn-info">Preset 1</button>
-                  <button className="btn btn-sm btn-success">Preset 2</button>
-                  <button className="btn btn-sm btn-warning">Preset 3</button>
-                </div>
-              </div>
-            </div>
-
+            {/* IPTV Control */} 
             <div className="card bg-base-200 shadow-md">
               <div className="card-body space-y-4">
                 <h2 className="text-lg font-semibold text-accent">IPTV CHANNEL CONTROL</h2>
 
-                {/* IPTV Select */}
                 {/* IPTV Select */}
                 <div className="form-control">
                   <label className="label">
@@ -1057,6 +1030,46 @@ const handleUpdateIptvChannel2 = async () => {
               </button>
               </div>
             </div>
+
+             {/* Channel Presets */}          
+            <div className="card bg-base-200 shadow-md">
+              <div className="card-body">
+                <h2 className="text-lg font-semibold text-accent mb-4">
+                  CHANNEL PRESETS
+                </h2>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <button className="btn btn-sm btn-info">Preset 1</button>
+                  <button className="btn btn-sm btn-success">Preset 2</button>
+                  <button className="btn btn-sm btn-warning">Preset 3</button>
+                </div>
+              </div>
+            </div>
+
+            {/* IPTV Reboot Section */}
+            {Array.from({ length: 28 }, (_, i) => {
+              const iptvNumber = i + 1;
+              const label = `IPTV ${iptvNumber}`;
+              return (
+                <div key={iptvNumber} className="card bg-base-200 shadow-md">
+                  <div className="card-body flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-accent">{label}</h3>
+                    <div className="flex gap-3">
+                      <button
+                        disabled={rebootLoading && modalIptvNumber === iptvNumber}
+                        className="btn btn-sm btn-warning"
+                        onClick={() => openConfirmation('Reboot', iptvNumber)}
+                      >
+                        {rebootLoading && modalIptvNumber === iptvNumber ? 'Rebooting...' : 'Reboot'}
+                      </button>
+                      <button className="btn btn-sm btn-error" onClick={() => openConfirmation('Port Reset', iptvNumber)}>
+                        Port Reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

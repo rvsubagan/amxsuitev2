@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import Hls from 'hls.js';
+import toast from 'react-hot-toast';
 import SidebarNavigation from '@/components/SidebarNavigation';
 
 export default function Home({ session }) {
@@ -42,6 +43,7 @@ export default function Home({ session }) {
   111, 112, 115, 116
 ];
 
+ // Switch Stream
   const switchStream = async () => {
   if (busy) return;
   setBusy(true);
@@ -62,12 +64,15 @@ export default function Home({ session }) {
 
     if (res.ok) {
       setStatus(`✅ Switched decoder ${selectedDecoder} to stream ${selectedStream}`);
+      toast.success(`Switched decoder ${selectedDecoder} to stream ${selectedStream}`);
     } else {
+      toast.error(`Failed to switch decoder ${selectedDecoder} to stream ${selectedStream}`);
       setStatus(`✅ Done! (Stream ${selectedStream})`);
     }
 
   } catch (err) {
     setStatus(`❌ Network error: ${err.message}`);
+    toast.error(`Network error: ${err.message}`);
   } finally {
     setBusy(false); // ✅ ALWAYS re-enable
   }
@@ -87,10 +92,12 @@ export default function Home({ session }) {
     const ip = iptvNumberToIp(iptvNumber);
     if (!ip) {
       setStatus(`❌ No IP mapping for IPTV ${iptvNumber}.`);
+      toast.error(`No IP mapping for IPTV ${iptvNumber}.`);
       return;
     }
     setRebootLoading(true);
     setStatus(`🔄 Sending reboot request to ${ip}...`);
+
     try {
       const res = await fetch(`${backend2Url}/reboot-stb`, {
         method: 'POST',
@@ -100,11 +107,14 @@ export default function Home({ session }) {
       const data = await res.json();
       if (res.ok) {
         setStatus(`✅ Successfully rebooted ${ip} (IPTV ${iptvNumber}).`);
+        toast.success(`Successfully rebooted ${ip} (IPTV ${iptvNumber}).`);
       } else {
         setStatus(`❌ Reboot failed: ${data.error || 'Unknown error'}`);
+        toast.error(`Reboot failed: ${data.error || 'Unknown error'}`);
       }
     } catch (err) {
       setStatus(`❌ Network Error: ${err.message}`);
+      toast.error(`Network Error: ${err.message}`);
     } finally {
       setRebootLoading(false);
     }
@@ -133,15 +143,19 @@ const handleConfirmAction = async () => {
       const data = await res.json();
       if (res.ok) {
         setStatus(`✅ Port ${modalIptvNumber} reset successfully.`);
+        toast.success(`Port ${modalIptvNumber} reset successfully.`);
       } else {
         setStatus(`❌ Port reset failed: ${data.error || 'Unknown error'}`);
+        toast.error(`Port reset failed: ${data.error || 'Unknown error'}`);
       }
     } catch (err) {
       setStatus(`❌ Network error: ${err.message}`);
+      toast.error(`Network error: ${err.message}`);
     }
   } 
   else {
     setStatus(`⚠️ Action ${modalAction} is not supported for IPTV ${modalIptvNumber}.`);
+    toast.error(`Action ${modalAction} is not supported for IPTV ${modalIptvNumber}.`);
   }
 };
 /* Audio Select Handler */
@@ -162,12 +176,16 @@ const handleAudioSelect = async (streamNumber) => {
     if (res.ok) {
       setActiveAudio(streamNumber);
       setStatus(`✅ Audio switched to ${streamNumber}`);
+      //toast.success(`Audio switched to ${streamNumber}`);
+      toast.success(`Audio switched`);
     } else {
       const data = await res.json();
       setStatus(`❌ ${data.error || 'Failed to switch audio'}`);
+      toast.error(`Failed to switch audio: ${data.error || 'Unknown error'}`);
     }
   } catch (err) {
     setStatus(`❌ Network error: ${err.message}`);
+    toast.error(`Network error: ${err.message}`);
   }
 
   setAudioLoading(null);
@@ -635,8 +653,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("NEWS 1 channels sent successfully.");
+      toast.success("NEWS 1 channels sent successfully.", { id: 'news1-toast' });
     } catch (err) {
       setStatus(`Failed to send NEWS 1: ${err.message}`);
+      toast.error(`Failed to send NEWS 1: ${err.message}`, { id: 'news1-toast' });
     }
   };
 
@@ -678,8 +698,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("NEWS 2 channels sent successfully.");
+      toast.success("NEWS 2 channels sent successfully.", { id: 'news2-toast' });
     } catch (err) {
       setStatus(`Failed to send NEWS 2: ${err.message}`);
+      toast.error(`Failed to send NEWS 2: ${err.message}`, { id: 'news2-toast' });
     }
   };
 
@@ -721,8 +743,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("NEWS 3 channels sent successfully.");
+      toast.success("NEWS 3 channels sent successfully.", { id: 'news3-toast' });
     } catch (err) {
       setStatus(`Failed to send NEWS 3: ${err.message}`);
+      toast.error(`Failed to send NEWS 3: ${err.message}`, { id: 'news3-toast' });
     }
   };
 
@@ -764,8 +788,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("E-media channels sent successfully.");
+      toast.success("E-media channels sent successfully.", { id: 'emedia-toast' });
     } catch (err) {
       setStatus(`Failed to send E-media: ${err.message}`);
+      toast.error(`Failed to send E-media: ${err.message}`, { id: 'emedia-toast' });
     }
   };
 
@@ -807,8 +833,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("Security channels sent successfully.");
+      toast.success("Security channels sent successfully.", { id: 'security-toast' });
     } catch (err) {
-      setStatus(`Failed to send E-media: ${err.message}`);
+      setStatus(`Failed to send Security: ${err.message}`);
+      toast.error(`Failed to send Security: ${err.message}`, { id: 'security-toast' });
     }
   };
 
@@ -850,8 +878,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("WSM 1 channels sent successfully.");
+      toast.success("WSM 1 channels sent successfully.", { id: 'wsm1-toast' });
     } catch (err) {
       setStatus(`Failed to send WSM 1: ${err.message}`);
+      toast.error(`Failed to send WSM 1: ${err.message}`, { id: 'wsm1-toast' });
     }
   };
   
@@ -893,8 +923,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("WSM 2 channels sent successfully.");
+      toast.success("WSM 2 channels sent successfully.", { id: 'wsm2-toast' });
     } catch (err) {
       setStatus(`Failed to send WSM 2: ${err.message}`);
+      toast.error(`Failed to send WSM 2: ${err.message}`, { id: 'wsm2-toast' });
     }
   };
  
@@ -936,8 +968,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("WSM 2 channels sent successfully.");
+      toast.success("WSM 2 channels sent successfully.", { id: 'wsm2-toast' });
     } catch (err) {
       setStatus(`Failed to send WSM 2: ${err.message}`);
+      toast.error(`Failed to send WSM 2: ${err.message}`, { id: 'wsm2-toast' });
     }
   };
 
@@ -979,8 +1013,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("Movies channels sent successfully.");
+      toast.success("Movies channels sent successfully.", { id: 'movies-toast' });
     } catch (err) {
       setStatus(`Failed to send Movies: ${err.message}`);
+      toast.error(`Failed to send Movies: ${err.message}`, { id: 'movies-toast' });
     }
   };
 
@@ -1022,8 +1058,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setStatus("Kids channels sent successfully.");
+      toast.success("Kids channels sent successfully.", { id: 'kids-toast' });
     } catch (err) {
       setStatus(`Failed to send Kids: ${err.message}`);
+      toast.error(`Failed to send Kids: ${err.message}`, { id: 'kids-toast' });
     }
   };
 
@@ -1053,8 +1091,10 @@ const CHANNEL_DESCRIPTIONS = {
       }
 
       setUpdateStatus(`✅ IPTV (${updateIptvIp}) updated to channel ${updateChannel}`);
+      toast.success(`IPTV (${updateIptvIp}) updated to channel ${updateChannel}`, { id: 'update-iptv-toast' });
     } catch (err) {
       setUpdateStatus(`❌ Failed: ${err.message}`);
+      toast.error(`Failed to update IPTV: ${err.message}`, { id: 'update-iptv-toast' });
     } finally {
       setUpdateLoading(false);
     }
@@ -1145,6 +1185,9 @@ const CHANNEL_DESCRIPTIONS = {
                 allowFullScreen
               />
             </div>
+          </div>
+
+          <div className="max-h-[660px] overflow-y-auto space-y-4">
 
             {/* Video Routing Control Section */}    
             <div className="card bg-base-200 shadow-2xl">
@@ -1196,18 +1239,8 @@ const CHANNEL_DESCRIPTIONS = {
                     Set Stream
                   </button>
                 </div>
-
-                {status && (
-                  <div className="alert alert-info mt-4 text-sm break-words">
-                    <span>{status}</span>
-                  </div>
-                )}
               </div>
             </div>
-            {/* End of Video Routing Control Section */}
-          </div>
-
-          <div className="max-h-[660px] overflow-y-auto space-y-4">
 
             {/* Audio Select Section */}
             <div className="card bg-base-200 shadow-md">
@@ -1261,6 +1294,8 @@ const CHANNEL_DESCRIPTIONS = {
                 </div>
               </div>
             </div>
+
+            {/* IPTV Control Section */}
             <div className="card bg-base-200 shadow-md">
               <div className="card-body space-y-4">
                 <h2 className="text-lg font-semibold text-accent">
@@ -1329,6 +1364,7 @@ const CHANNEL_DESCRIPTIONS = {
                 )}
               </div>
             </div>
+            
             {/* IPTV Reboot Section */}
             {Array.from({ length: 17 }, (_, i) => {
               const streamNumber = 101 + i;

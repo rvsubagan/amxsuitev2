@@ -17,17 +17,17 @@
 /amx-webui/*.tsbuildinfo
 /amx-webui/next-env.d.ts
 
-# --- Backend (Node.js) ---
-/backend/node_modules
-/backend/.DS_Store
-/backend/*.log
-/backend/.env*
+# --- amx-backend (Node.js) ---
+/amx-backend/node_modules
+/amx-backend/.DS_Store
+/amx-backend/*.log
+/amx-backend/.env*
 
-# --- Backend2 (Node.js) ---
-/backend2/node_modules
-/backend2/.DS_Store
-/backend2/*.log
-/backend2/.env*
+# --- iptv-backend (Node.js) ---
+/iptv-backend/node_modules
+/iptv-backend/.DS_Store
+/iptv-backend/*.log
+/iptv-backend/.env*
 
 # Exclude streamserver output files
 /amx-webui/public/localstream/*
