@@ -1356,12 +1356,6 @@ const CHANNEL_DESCRIPTIONS = {
                     {updateLoading ? 'Updating...' : 'Update Channel'}
                   </button>
                 </div>
-
-                {updateStatus && (
-                  <div className="alert alert-info text-sm break-words">
-                    <span>{updateStatus}</span>
-                  </div>
-                )}
               </div>
             </div>
             
