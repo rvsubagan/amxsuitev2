@@ -1,25 +1,46 @@
+# ==========================================
+# Build stage
+# ==========================================
+FROM node:22-bookworm-slim AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including esbuild
+RUN npm ci
+
+# Copy application source
+COPY index.js ./
+COPY utils ./utils
+
+# Bundle and minify application
+RUN npm run build
+
+
+# ==========================================
+# Production stage
+# ==========================================
 FROM node:22-bookworm-slim
 
 WORKDIR /app
 
-# Install tools required by shell scripts
-RUN apt-get update && apt-get install -y \
-    bash \
-    expect \
-    telnet \
-    curl \
-    openssh-client \
-    && rm -rf /var/lib/apt/lists/*
+ENV NODE_ENV=production
 
+# Copy package files
 COPY package*.json ./
 
+# Install production dependencies only
 RUN npm ci --omit=dev
 
-COPY . .
+# Copy only bundled application
+COPY --from=builder /app/dist/index.js ./index.js
 
-RUN chmod +x send_channel.sh \
-    && chmod +x stb_reboot.sh
-
+# Application port
 EXPOSE 5001
 
-CMD ["npm", "start"]
+# Run as non-root user
+USER node
+
+CMD ["node", "index.js"]

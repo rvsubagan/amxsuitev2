@@ -1,15 +1,22 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { execFile } = require('child_process');
-const path = require('path');
 const cors = require('cors');
-const axios = require("axios");
-const https = require("https");
+const axios = require('axios');
+const https = require('https');
+
 const rebootBox = require('./utils/rebootBox');
+const sendChannel = require('./utils/sendChannel');
+const rebootStb = require('./utils/rebootStb');
 
 const app = express();
+const PORT = process.env.PORT || 5001;
+
 app.use(cors());
 app.use(bodyParser.json());
+
+// ==========================================
+// Health Checks
+// ==========================================
 
 app.get('/live', (req, res) => {
   res.status(200).json({ status: 'alive' });
@@ -19,46 +26,60 @@ app.get('/ready', (req, res) => {
   res.status(200).json({ status: 'ready' });
 });
 
-// Exterity Change Channel Script (send_channel.sh)
+
+// ==========================================
+// Exterity Change Channel
+// Replaces send_channel.sh
+// ==========================================
+
 app.post('/send-channels', async (req, res) => {
   const channels = req.body.channels;
 
   if (!Array.isArray(channels) || channels.length === 0) {
-    return res.status(400).json({ error: 'Expected a non-empty array of channels' });
+    return res.status(400).json({
+      error: 'Expected a non-empty array of channels'
+    });
   }
 
-  // Path to your expect script
-  const scriptPath = path.join(__dirname, 'send_channel.sh');
-
-  // Run all commands in parallel and collect results
   const results = await Promise.all(
-    channels.map(({ ip, channel }) => {
-      return new Promise((resolve) => {
-        execFile(scriptPath, [channel.toString(), ip], { timeout: 15000 }, (error, stdout, stderr) => {
-          if (error) {
-            resolve({ ip, channel, success: false, error: error.message });
-          } else {
-            resolve({ ip, channel, success: true, output: stdout.trim() });
-          }
-        });
-      });
+    channels.map(async ({ ip, channel }) => {
+      try {
+        await sendChannel(ip, channel);
+
+        return {
+          ip,
+          channel,
+          success: true
+        };
+      } catch (error) {
+        return {
+          ip,
+          channel,
+          success: false,
+          error: error.message
+        };
+      }
     })
   );
 
   res.status(200).json({ results });
 });
 
+
+// ==========================================
 // Vitec Change Channel
+// ==========================================
+
 const vitecHttpsAgent = new https.Agent({
-  rejectUnauthorized: false, // equivalent to curl -k
+  rejectUnauthorized: false
 });
 
-app.post("/send-channels2", async (req, res) => {
+app.post('/send-channels2', async (req, res) => {
   const { ip, streamUri } = req.body;
 
   if (!ip || !streamUri) {
     return res.status(400).json({
-      error: "Missing ip or streamUri",
+      error: 'Missing ip or streamUri'
     });
   }
 
@@ -66,23 +87,24 @@ app.post("/send-channels2", async (req, res) => {
     const url = `https://${ip}:8080/display/stream-uri`;
 
     const authHeader =
-      "Basic " + Buffer.from("admin:vitec321").toString("base64");
+      'Basic ' +
+      Buffer.from('admin:vitec321').toString('base64');
 
     const response = await axios.put(
       url,
       {
-        "stream-uri": streamUri,
+        'stream-uri': streamUri
       },
       {
         httpsAgent: vitecHttpsAgent,
 
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": authHeader,
+          'Content-Type': 'application/json',
+          'Authorization': authHeader
         },
 
         timeout: 5000,
-        validateStatus: () => true, // important for debugging
+        validateStatus: () => true
       }
     );
 
@@ -90,63 +112,99 @@ app.post("/send-channels2", async (req, res) => {
       return res.status(response.status).json({
         success: false,
         status: response.status,
-        error: response.data,
+        error: response.data
       });
     }
 
     res.json({
       success: true,
-      message: "Vitec channel changed successfully",
-      data: response.data,
+      message: 'Vitec channel changed successfully',
+      data: response.data
     });
 
   } catch (error) {
-
     res.status(500).json({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 });
 
-// Exterity Reboot Script (stb_reboot.sh)
-app.post('/reboot-stb', (req, res) => {
-    const ip = req.body.ip;
 
-    if (!ip) {
-        return res.status(400).json({ error: 'Missing STB IP address in request body.' });
-    }
+// ==========================================
+// Exterity STB Reboot
+// Replaces stb_reboot.sh
+// ==========================================
 
-    const scriptPath = path.join(__dirname, 'stb_reboot.sh');
+app.post('/reboot-stb', async (req, res) => {
+  const { ip } = req.body;
 
-    execFile(scriptPath, [ip], (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return res.status(500).json({ error: 'Failed to execute script', details: stderr });
-        }
-
-        return res.json({ message: 'Reboot command sent successfully.', output: stdout });
+  if (!ip) {
+    return res.status(400).json({
+      error: 'Missing STB IP address in request body.'
     });
+  }
+
+  try {
+    await rebootStb(ip);
+
+    return res.json({
+      message: 'Reboot command sent successfully.'
+    });
+
+  } catch (error) {
+    console.error(`STB reboot error: ${error.message}`);
+
+    return res.status(500).json({
+      error: 'Failed to execute reboot command',
+      details: error.message
+    });
+  }
 });
 
+
+// ==========================================
 // Alps1 Vitec Reboot Endpoint
+// ==========================================
+
 app.post('/api/reboot', async (req, res) => {
   const { ip } = req.body;
 
   if (!ip) {
-    return res.status(400).json({ error: 'Decoder IP is required.' });
+    return res.status(400).json({
+      error: 'Decoder IP is required.'
+    });
   }
 
-  const result = await rebootBox(ip);
+  try {
+    const result = await rebootBox(ip);
 
-  if (result.success) {
-    res.json({ success: true, message: `Rebooted ${ip}`, status: result.status });
-  } else {
-    res.status(500).json({ error: `Failed to reboot ${ip}: ${result.error}` });
+    if (result.success) {
+      return res.json({
+        success: true,
+        message: `Rebooted ${ip}`,
+        status: result.status
+      });
+    }
+
+    return res.status(500).json({
+      error: `Failed to reboot ${ip}: ${result.error}`
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      error: `Failed to reboot ${ip}: ${error.message}`
+    });
   }
 });
 
-const PORT = 5001;
+
+// ==========================================
+// Start Server
+// ==========================================
+
 app.listen(PORT, () => {
-  console.log(`🚀 IPTV Backend running on http://0.0.0.0:${PORT}`);
+  console.log(
+    `🚀 IPTV Backend running on http://0.0.0.0:${PORT}`
+  );
 });
