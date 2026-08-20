@@ -1,11 +1,12 @@
 // app/api/ping-devices2/route.js
 
-import { exec } from 'child_process';
+import net from 'net';
 import { NextResponse } from 'next/server';
 
 const devices = [
   { name: 'NX-4200', ip: '172.18.92.100' },
   { name: 'SC-N8002', ip: '172.18.92.101' },
+
   { name: 'Exterity STB 1', ip: '10.250.1.31' },
   { name: 'Exterity STB 2', ip: '10.250.1.32' },
   { name: 'Exterity STB 3', ip: '10.250.1.33' },
@@ -34,8 +35,10 @@ const devices = [
   { name: 'Exterity STB 26', ip: '10.250.1.56' },
   { name: 'Exterity STB 27', ip: '10.250.1.57' },
   { name: 'Exterity STB 28', ip: '10.250.1.58' },
+
   { name: 'Multiviewer', ip: '172.18.92.142' },
   { name: 'Audio Transceiver', ip: '172.18.92.96' },
+
   { name: 'Decoder Theater', ip: '172.18.92.85' },
   { name: 'Decoder Mini Office', ip: '172.18.92.86' },
   { name: 'Decoder Led Wall', ip: '172.18.92.81' },
@@ -43,6 +46,7 @@ const devices = [
   { name: 'Decoder Stream Deck 2', ip: '172.18.92.95' },
   { name: 'Decoder Table', ip: '172.18.92.82' },
   { name: 'Decoder Conference', ip: '172.18.92.83' },
+
   { name: 'Encoder IPTV 1', ip: '172.18.92.41' },
   { name: 'Encoder IPTV 2', ip: '172.18.92.42' },
   { name: 'Encoder IPTV 3', ip: '172.18.92.43' },
@@ -71,6 +75,7 @@ const devices = [
   { name: 'Encoder IPTV 26', ip: '172.18.92.66' },
   { name: 'Encoder IPTV 27', ip: '172.18.92.67' },
   { name: 'Encoder IPTV 28', ip: '172.18.92.68' },
+
   { name: 'Encoder Fire TV', ip: '172.18.92.69' },
   { name: 'Encoder PC', ip: '172.18.92.70' },
   { name: 'Encoder CCTV 2', ip: '172.18.92.71' },
@@ -84,6 +89,7 @@ const devices = [
   { name: 'Encoder Himawari 2', ip: '172.18.92.79' },
   { name: 'Encoder Kaleidescape', ip: '172.18.92.80' },
   { name: 'Encoder IPTV Preview', ip: '172.18.92.99' },
+
   { name: 'Windowing Processor 1', ip: '172.18.92.102' },
   { name: 'Windowing Processor 2', ip: '172.18.92.107' },
   { name: 'Windowing Processor 3', ip: '172.18.92.112' },
@@ -95,24 +101,96 @@ const devices = [
   { name: 'Windowing Processor 9', ip: '172.18.92.142' },
 ];
 
-async function ping(ip) {
+/**
+ * Determine TCP port based on device IP.
+ *
+ * 172.18.92.x -> TCP 50002
+ * 10.250.1.x  -> TCP 80
+ */
+function getPort(ip) {
+  if (ip.startsWith('172.18.92.')) {
+    return 80;
+  }
+
+  if (ip.startsWith('10.250.1.')) {
+    return 80;
+  }
+
+  return 50002;
+}
+
+function checkTcp(ip, port, timeout = 2000) {
   return new Promise((resolve) => {
-    exec(`ping -c 1 -W 1 ${ip}`, (error) => {
-      resolve(!error); // true if online, false if error
+    const socket = new net.Socket();
+
+    let finished = false;
+
+    const finish = (online) => {
+      if (finished) return;
+
+      finished = true;
+      socket.destroy();
+      resolve(online);
+    };
+
+    socket.setTimeout(timeout);
+
+    socket.once('connect', () => {
+      finish(true);
     });
+
+    socket.once('timeout', () => {
+      finish(false);
+    });
+
+    socket.once('error', () => {
+      finish(false);
+    });
+
+    socket.connect(port, ip);
   });
 }
 
-export async function GET() {
-  const results = await Promise.all(
-    devices.map(async (device) => {
-      const isOnline = await ping(device.ip);
-      return {
-        name: device.name,
-        status: isOnline ? 'online' : 'offline',
-      };
-    })
+async function checkDevice(device) {
+  const port = getPort(device.ip);
+
+  const isOnline = await checkTcp(device.ip, port);
+
+  return {
+    name: device.name,
+    status: isOnline ? 'online' : 'offline',
+  };
+}
+
+async function checkDevicesWithConcurrency(devices, concurrency = 10) {
+  const results = new Array(devices.length);
+
+  let nextIndex = 0;
+
+  async function worker() {
+    while (true) {
+      const index = nextIndex++;
+
+      if (index >= devices.length) {
+        return;
+      }
+
+      results[index] = await checkDevice(devices[index]);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, devices.length) },
+    () => worker()
   );
+
+  await Promise.all(workers);
+
+  return results;
+}
+
+export async function GET() {
+  const results = await checkDevicesWithConcurrency(devices, 10);
 
   return NextResponse.json(results);
 }
