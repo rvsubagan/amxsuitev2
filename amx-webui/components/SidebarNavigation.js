@@ -43,11 +43,18 @@ export default function SidebarNavigation() {
         flex
         flex-col
         items-center
-        py-2
       "
     >
-      <nav className="w-full">
-        <ul className="flex flex-col items-center gap-1">
+      <nav
+        className="
+          w-full
+          flex-1
+          flex
+          items-center
+          justify-center
+        "
+      >
+        <ul className="flex flex-col items-center gap-10">
           {navItems.map((item) => {
             const isActive =
               item.href === '/'
