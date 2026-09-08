@@ -191,237 +191,349 @@ export default function Home({session}) {
         `Stream ${streamAudioNumber}`
       : "--"
 
-  return (
-    <div className="min-h-screen bg-base-100 flex" data-theme="dark">
-      <SidebarNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+ return (
+  <div
+    className="h-dvh bg-base-100 flex overflow-hidden"
+    data-theme="dark"
+  >
+    <SidebarNavigation
+      sidebarOpen={sidebarOpen}
+      setSidebarOpen={setSidebarOpen}
+    />
 
-      <div className="flex-1 p-6 md:p-10 overflow-x-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold text-primary">🖥️ AMX Device Dashboard</h1>
-          <div className="text-right text-lg font-mono text-base-content/70">
-            {/* <div>{formattedDate}</div>
-            <div>{formattedTime}</div> */}
-            <div className="text-sm text-base-content/70 mt-1 flex items-center gap-3">
-                <span>Welcome, {username}</span>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-sm btn-outline btn-error"
-                  title="Logout"
-                >
-                  Logout
-                </button>
-              </div>
-          </div>
+    {/* MAIN APPLICATION AREA */}
+    <main className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+
+      {/* COMPACT HEADER */}
+      <header
+        className="
+          h-12
+          shrink-0
+          flex
+          items-center
+          justify-between
+          px-3
+          border-b
+          border-base-content/10
+        "
+      >
+        <h1 className="text-lg md:text-xl font-bold text-primary truncate">
+          🖥️ AMX Device Dashboard
+        </h1>
+
+        <div className="flex items-center gap-3 text-sm">
+          <button
+            onClick={handleLogout}
+            className="btn btn-xs md:btn-sm btn-outline btn-error"
+            title="Logout"
+          >
+            Logout
+          </button>
         </div>
+      </header>
 
-        {/* Decoder Card */}
-        <div className="card border border-base-300 bg-base-100 shadow-xl">
+      {/* DASHBOARD CONTENT */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-2">
 
-          <div className="card-body">
+        <div className="w-full">
 
-            {/* Card Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* DECODER CARD */}
+          <section className="card bg-base-200 shadow-md border border-base-content/10">
 
-              <div>
+            <div className="card-body p-3 md:p-4 gap-3">
 
-                <div className="flex items-center gap-3">
+              {/* ================================= */}
+              {/* DEVICE HEADER                    */}
+              {/* ================================= */}
+              <div className="flex items-center justify-between gap-3">
 
-                  <h2 className="text-xl font-bold">
-                    PRIVOFF AMX DECODER
-                  </h2>
+                <div className="min-w-0">
 
-                  {loading && (
-                    <span className="loading loading-spinner loading-sm" />
-                  )}
+                  <div className="flex items-center gap-2">
 
-                </div>
+                    <h2 className="text-base md:text-lg font-bold truncate">
+                      PRIVOFF AMX DECODER
+                    </h2>
 
-{/*                 <p className="mt-1 font-mono text-sm text-base-content/60">
-                  {decoder?.ip || "172.18.90.186"}
-                </p> */}
+                    {loading && (
+                      <span className="loading loading-spinner loading-xs" />
+                    )}
 
-              </div>
-
-              {/* Ping Status */}
-              {!loading && decoder && (
-                isUp ? (
-                  <div className="badge badge-success gap-2 px-4 py-4 text-sm font-bold">
-                    <span className="status status-success" />
-                    UP
                   </div>
-                ) : (
-                  <div className="badge badge-error gap-2 px-4 py-4 text-sm font-bold">
-                    <span className="status status-error" />
-                    DOWN
+
+                  <div className="text-xs text-base-content/50 mt-0.5">
+                    AMX SVSI Decoder
                   </div>
-                )
-              )}
 
-            </div>
-
-            <div className="divider" />
-
-            {/* Information */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-              {/* Stream */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
-
-                <div className="text-sm font-medium text-base-content/60">
-                  Video Source
                 </div>
 
-                <div className="mt-2 text-3xl font-bold">
-                  {streamLabel}
-                </div>
-
-{/*                 {streamNumber !== null &&
-                  streamNumber !== undefined && (
-                    <div className="mt-1 text-sm text-base-content/50">
-                      Stream Video {streamNumber}
+                {/* DEVICE STATUS */}
+                {!loading && decoder && (
+                  isUp ? (
+                    <div className="badge badge-success gap-1 px-3 py-3 text-xs font-bold shrink-0">
+                      <span className="status status-success" />
+                      UP
                     </div>
-                  )} */}
-
-              </div>
-              {/* Stream Audio */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
-
-                <div className="text-sm font-medium text-base-content/60">
-                  Audio Source
-                </div>
-
-                <div className="mt-2 text-3xl font-bold">
-                  {streamAudioLabel}
-                </div>
-
-{/*                 {streamAudioNumber !== null &&
-                  streamAudioNumber !== undefined && (
-                    <div className="mt-1 text-sm text-base-content/50">
-                      Stream Audio {streamAudioNumber}
+                  ) : (
+                    <div className="badge badge-error gap-1 px-3 py-3 text-xs font-bold shrink-0">
+                      <span className="status status-error" />
+                      DOWN
                     </div>
-                  )} */}
+                  )
+                )}
 
               </div>
 
-              {/* Multicast */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
+              {/* ================================= */}
+              {/* STATUS GRID                      */}
+              {/* ================================= */}
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  xl:grid-cols-3
+                  gap-2
+                "
+              >
 
-                <div className="text-sm font-medium text-base-content/60">
-                  Video Network Stream
+                {/* VIDEO SOURCE */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    Video Source
+                  </div>
+
+                  <div className="mt-1 text-xl md:text-2xl font-bold truncate">
+                    {streamLabel}
+                  </div>
+
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                {/* AUDIO SOURCE */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    Audio Source
+                  </div>
+
+                  <div className="mt-1 text-xl md:text-2xl font-bold truncate">
+                    {streamAudioLabel}
+                  </div>
+
+                </div>
+
+                {/* NETWORK STREAM */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    Video Network Stream
+                  </div>
+
+                  <div className="mt-2">
+
+                    {!multicast && (
+                      <span className="badge badge-ghost badge-sm">
+                        --
+                      </span>
+                    )}
+
+                    {multicast && (
+                      multicastIsValid ? (
+                        <span className="badge badge-success badge-sm gap-1">
+                          <span className="status status-success" />
+                          ACTIVE
+                        </span>
+                      ) : (
+                        <span className="badge badge-error badge-sm gap-1">
+                          <span className="status status-error" />
+                          INACTIVE
+                        </span>
+                      )
+                    )}
+
+                  </div>
 
                   {multicast && (
-                    multicastIsValid ? (
-                      <span className="badge badge-success gap-1">
+                    <div className="mt-1 text-xs font-mono text-base-content/50 truncate">
+                      {multicast}
+                    </div>
+                  )}
+
+                </div>
+
+                {/* HDMI */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    HDMI
+                  </div>
+
+                  <div className="mt-2">
+
+                    {decoder?.hdmi === "connected" ? (
+                      <span className="badge badge-success badge-sm gap-1">
                         <span className="status status-success" />
-                        ACTIVE
+                        CONNECTED
                       </span>
                     ) : (
-                      <span className="badge badge-error gap-1">
-                        <span className="status status-error" />
-                        INACTIVE
+                      <span className="badge badge-error badge-sm">
+                        {decoder?.hdmi || "--"}
                       </span>
-                    )
-                  )}
+                    )}
+
+                  </div>
 
                 </div>
+
+                {/* VIDEO PACKET DROPS */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    Video Packet Drops / sec
+                  </div>
+
+                  <div
+                    className={`
+                      mt-1
+                      text-xl
+                      md:text-2xl
+                      font-bold
+                      ${
+                        videoDrop > 0
+                          ? "text-warning"
+                          : "text-success"
+                      }
+                    `}
+                  >
+                    {videoDrop ?? "--"}
+                  </div>
+
+                </div>
+
+                {/* VIDEO FRAME DROPS */}
+                <div
+                  className="
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    bg-base-100
+                    p-3
+                  "
+                >
+
+                  <div className="text-xs font-medium text-base-content/50">
+                    Video Frame Drops / sec
+                  </div>
+
+                  <div
+                    className={`
+                      mt-1
+                      text-xl
+                      md:text-2xl
+                      font-bold
+                      ${
+                        frameDrop > 0
+                          ? "text-warning"
+                          : "text-success"
+                      }
+                    `}
+                  >
+                    {frameDrop ?? "--"}
+                  </div>
+
+                </div>
+
               </div>
 
-              {/* HDMI */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
+              {/* ================================= */}
+              {/* FOOTER                           */}
+              {/* ================================= */}
+              <div
+                className="
+                  flex
+                  flex-col
+                  sm:flex-row
+                  sm:items-center
+                  sm:justify-between
+                  gap-1
+                  pt-2
+                  border-t
+                  border-base-content/10
+                  text-xs
+                  text-base-content/50
+                "
+              >
 
-                <div className="text-sm font-medium text-base-content/60">
-                  HDMI
+                <div>
+                  Update interval:
+                  <span className="font-semibold text-base-content/70">
+                    {" "}5 seconds
+                  </span>
                 </div>
 
-                <div className="mt-3">
-
-                  {decoder?.hdmi === "connected" ? (
-                    <span className="badge badge-success badge-lg gap-2">
-                      <span className="status status-success" />
-                      connected
-                    </span>
+                <div>
+                  {lastUpdated ? (
+                    <>
+                      Last updated:{" "}
+                      <span className="font-semibold text-base-content/70">
+                        {lastUpdated.toLocaleTimeString()}
+                      </span>
+                    </>
                   ) : (
-                    <span className="badge badge-error badge-lg">
-                      {decoder?.hdmi || "--"}
-                    </span>
+                    "Waiting for data..."
                   )}
-
-                </div>
-
-              </div>
-
-              {/* Video Packet Drops */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
-
-                <div className="text-sm font-medium text-base-content/60">
-                  Video Packet Drops / sec
-                </div>
-
-                <div
-                  className={`mt-2 text-3xl font-bold ${
-                    videoDrop > 0
-                      ? "text-warning"
-                      : "text-success"
-                  }`}
-                >
-                  {videoDrop ?? "--"}
-                </div>
-
-              </div>
-
-              {/* Video Frame Drops */}
-              <div className="rounded-xl border border-base-300 bg-base-200 p-5">
-
-                <div className="text-sm font-medium text-base-content/60">
-                  Video Frame Drops / sec
-                </div>
-
-                <div
-                  className={`mt-2 text-3xl font-bold ${
-                    frameDrop > 0
-                      ? "text-warning"
-                      : "text-success"
-                  }`}
-                >
-                  {frameDrop ?? "--"}
                 </div>
 
               </div>
 
             </div>
+          </section>
 
-            <div className="divider" />
-
-            {/* Footer */}
-            <div className="flex flex-col gap-2 text-sm text-base-content/50 sm:flex-row sm:items-center sm:justify-between">
-
-              <div>
-                Update interval: <strong>5 seconds</strong>
-              </div>
-
-              <div>
-                {lastUpdated ? (
-                  <>
-                    Last updated:{" "}
-                    <strong>
-                      {lastUpdated.toLocaleTimeString()}
-                    </strong>
-                  </>
-                ) : (
-                  "Waiting for data..."
-                )}
-              </div>
-
-            </div>
-
-          </div>
         </div>
-        
       </div>
-    </div>
-  );
+
+    </main>
+  </div>
+);
 }

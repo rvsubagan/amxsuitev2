@@ -90,7 +90,7 @@ export default function Home({session}) {
             <p className="text-3xl font-mono text-red-300">{offlineCount}</p>
           </div>
         </div>
-
+cv
         {/* Devices List */}
         <div className="rounded-2xl bg-base-200 p-6 border border-base-content/10 shadow-xl mb-10">
           <h2 className="text-2xl font-bold mb-4 text-primary">🧭 AMX Device Status</h2>
