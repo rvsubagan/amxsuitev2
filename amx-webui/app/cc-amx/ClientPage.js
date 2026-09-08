@@ -29,6 +29,7 @@ export default function Home({ session }) {
   const [updateStatus, setUpdateStatus] = useState('');
   const [busy, setBusy] = useState(false);
   const videoRef = useRef(null);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/' });
@@ -1137,104 +1138,194 @@ const CHANNEL_DESCRIPTIONS = {
     171: 'MAG IPTV',
   };
 
- return (
+return (
   <div
     className="h-dvh bg-base-100 flex overflow-hidden"
     data-theme="dark"
   >
-    <SidebarNavigation
-      sidebarOpen={sidebarOpen}
-      setSidebarOpen={setSidebarOpen}
-    />
+    <SidebarNavigation />
 
-    {/* MAIN APPLICATION AREA */}
-    <main className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+    {/* MAIN APPLICATION */}
+    <main className="relative flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
 
-      {/* COMPACT HEADER */}
-      <header className="
-        h-12
-        shrink-0
-        flex
-        items-center
-        justify-between
-        px-3
-        border-b
-        border-base-content/10
-      ">
+      {/* ======================================== */}
+      {/* HEADER                                   */}
+      {/* ======================================== */}
+
+      <header
+        className="
+          h-12
+          shrink-0
+          flex
+          items-center
+          justify-between
+          px-3
+          border-b
+          border-base-content/10
+          bg-base-100
+          z-30
+        "
+      >
         <h1 className="text-lg md:text-xl font-bold text-primary truncate">
           🖥️ CC AMX System
         </h1>
 
-        <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-base-content/70">
-            Welcome, {username}
-          </span>
+        <div className="flex items-center gap-2">
+
+          <button
+            onClick={() => setControlsOpen(true)}
+            className="btn btn-sm btn-primary"
+          >
+            🎛 Controls
+          </button>
 
           <button
             onClick={handleLogout}
-            className="btn btn-xs md:btn-sm btn-outline btn-error"
+            className="btn btn-sm btn-outline btn-error"
             title="Logout"
           >
             Logout
           </button>
+
         </div>
       </header>
 
-      {/* PLAYER + CONTROL PANEL */}
-      <div className="
-        flex-1
-        min-h-0
-        min-w-0
-        grid
-        grid-cols-1
-        lg:grid-cols-[minmax(0,1fr)_320px]
-        gap-2
-        p-2
-        overflow-hidden
-      ">
 
-        {/* ========================================= */}
-        {/* WEB PLAYER                              */}
-        {/* ========================================= */}
-        <section className="
+      {/* ======================================== */}
+      {/* WEB PLAYER                               */}
+      {/* ======================================== */}
+
+      <section
+        className="
+          flex-1
           min-w-0
           min-h-0
-          flex
-          items-start
-          justify-center
+          p-2
           overflow-hidden
-          bg-black
-          rounded-lg
-        ">
-          <div className="
-            w-full
-            aspect-video
-            bg-black
+        "
+      >
+        <div
+          className="
             relative
+            w-full
+            h-full
+            bg-black
+            rounded-lg
             overflow-hidden
-          ">
-            <iframe
-              src="http://172.18.61.53:1984/stream.html?src=cam1"
-              className="absolute inset-0 w-full h-full border-0"
-              scrolling="no"
-              allow="autoplay; fullscreen; camera; microphone"
-              allowFullScreen
-            />
+          "
+        >
+          <iframe
+            src="http://172.18.61.53:1984/stream.html?src=cam1"
+            className="absolute inset-0 w-full h-full border-0"
+            scrolling="no"
+            allow="autoplay; fullscreen; camera; microphone"
+            allowFullScreen
+          />
+        </div>
+      </section>
+
+
+      {/* ======================================== */}
+      {/* BACKDROP                                 */}
+      {/* ======================================== */}
+
+      {controlsOpen && (
+        <button
+          type="button"
+          className="
+            absolute
+            inset-0
+            top-12
+            z-40
+            bg-black/40
+          "
+          onClick={() => setControlsOpen(false)}
+          aria-label="Close controls"
+        />
+      )}
+
+
+      {/* ======================================== */}
+      {/* SLIDE-OUT CONTROL PANEL                  */}
+      {/* ======================================== */}
+
+      <aside
+        className={`
+          absolute
+          right-0
+          top-12
+          bottom-0
+          z-50
+
+          w-[340px]
+          max-w-[90vw]
+
+          bg-base-100
+          border-l
+          border-base-content/10
+          shadow-2xl
+
+          flex
+          flex-col
+
+          transition-transform
+          duration-200
+          ease-out
+
+          ${
+            controlsOpen
+              ? 'translate-x-0'
+              : 'translate-x-full'
+          }
+        `}
+      >
+
+        {/* CONTROL PANEL HEADER */}
+
+        <div
+          className="
+            h-12
+            shrink-0
+            flex
+            items-center
+            justify-between
+            px-3
+            border-b
+            border-base-content/10
+            bg-base-200
+          "
+        >
+          <div className="font-bold text-sm">
+            🎛 Controls
           </div>
-        </section>
 
-        {/* ========================================= */}
-        {/* SCROLLABLE CONTROL PANEL                 */}
-        {/* ========================================= */}
-        <aside className="
-          min-h-0
-          overflow-y-auto
-          overscroll-contain
-          space-y-2
-          pr-1
-        ">
+          <button
+            onClick={() => setControlsOpen(false)}
+            className="btn btn-sm btn-square btn-ghost"
+            aria-label="Close controls"
+          >
+            ✕
+          </button>
+        </div>
 
-          {/* VIDEO ROUTING */}
+
+        {/* SCROLLABLE CONTROLS */}
+
+        <div
+          className="
+            flex-1
+            min-h-0
+            overflow-y-auto
+            overscroll-contain
+            p-2
+            space-y-2
+          "
+        >
+
+          {/* ==================================== */}
+          {/* VIDEO ROUTING                        */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
             <div className="card-body p-3 gap-2">
 
@@ -1243,6 +1334,7 @@ const CHANNEL_DESCRIPTIONS = {
               </h2>
 
               <div className="form-control">
+
                 <label className="label py-1">
                   <span className="label-text text-xs">
                     Destination
@@ -1252,19 +1344,27 @@ const CHANNEL_DESCRIPTIONS = {
                 <select
                   className="select select-bordered select-sm w-full"
                   value={selectedDecoder}
-                  onChange={(e) => setSelectedDecoder(e.target.value)}
+                  onChange={(e) =>
+                    setSelectedDecoder(e.target.value)
+                  }
                 >
                   <option value="172.18.90.186">
                     DEC - Web Player
                   </option>
 
-                  <option value="172.18.92.188" disabled>
+                  <option
+                    value="172.18.92.188"
+                    disabled
+                  >
                     DEC - Staging Decoder
                   </option>
                 </select>
+
               </div>
 
+
               <div className="form-control">
+
                 <label className="label py-1">
                   <span className="label-text text-xs">
                     Source
@@ -1275,10 +1375,14 @@ const CHANNEL_DESCRIPTIONS = {
                   className="select select-accent select-bordered select-sm w-full"
                   value={selectedStream}
                   onChange={(e) =>
-                    setSelectedStream(parseInt(e.target.value))
+                    setSelectedStream(
+                      parseInt(e.target.value)
+                    )
                   }
                 >
+
                   {Array.from({ length: 71 }, (_, i) => {
+
                     const streamNumber = 101 + i;
 
                     const excludedStreams = [
@@ -1288,7 +1392,11 @@ const CHANNEL_DESCRIPTIONS = {
                       155, 156, 157, 158, 159, 160
                     ];
 
-                    if (excludedStreams.includes(streamNumber)) {
+                    if (
+                      excludedStreams.includes(
+                        streamNumber
+                      )
+                    ) {
                       return null;
                     }
 
@@ -1305,22 +1413,32 @@ const CHANNEL_DESCRIPTIONS = {
                       </option>
                     );
                   })}
+
                 </select>
+
               </div>
+
 
               <button
                 className="btn btn-primary btn-sm w-full mt-1"
                 disabled={busy}
                 onClick={switchStream}
               >
-                {busy ? 'Switching...' : 'Set Stream'}
+                {busy
+                  ? 'Switching...'
+                  : 'Set Stream'}
               </button>
 
             </div>
           </div>
 
-          {/* AUDIO SELECT */}
+
+          {/* ==================================== */}
+          {/* AUDIO SELECT                         */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
@@ -1328,41 +1446,61 @@ const CHANNEL_DESCRIPTIONS = {
               </h2>
 
               <div className="grid grid-cols-4 gap-1.5">
-                {audioMap.map((streamNumber, index) => {
-                  const buttonIndex = index + 1;
 
-                  return (
-                    <button
-                      key={streamNumber}
-                      onClick={() =>
-                        handleAudioSelect(streamNumber)
-                      }
-                      disabled={audioLoading !== null}
-                      className={`
-                        btn btn-xs
-                        ${
-                          activeAudio === streamNumber
-                            ? 'btn-success'
-                            : 'btn-info'
+                {audioMap.map(
+                  (streamNumber, index) => {
+
+                    const buttonIndex = index + 1;
+
+                    return (
+                      <button
+                        key={streamNumber}
+                        onClick={() =>
+                          handleAudioSelect(
+                            streamNumber
+                          )
                         }
-                        ${
-                          audioLoading === streamNumber
-                            ? 'loading'
-                            : ''
+                        disabled={
+                          audioLoading !== null
                         }
-                      `}
-                    >
-                      {buttonIndex}
-                    </button>
-                  );
-                })}
+                        className={`
+                          btn
+                          btn-xs
+
+                          ${
+                            activeAudio ===
+                            streamNumber
+                              ? 'btn-success'
+                              : 'btn-info'
+                          }
+
+                          ${
+                            audioLoading ===
+                            streamNumber
+                              ? 'loading'
+                              : ''
+                          }
+                        `}
+                      >
+                        {buttonIndex}
+                      </button>
+                    );
+                  }
+                )}
+
               </div>
 
             </div>
+
           </div>
 
-          {/* CHANNEL PRESETS */}
+
+          {/* ==================================== */}
+          {/* CHANNEL PRESETS                      */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
@@ -1442,16 +1580,26 @@ const CHANNEL_DESCRIPTIONS = {
                 </button>
 
               </div>
+
             </div>
+
           </div>
 
-          {/* IPTV CONTROL */}
+
+          {/* ==================================== */}
+          {/* IPTV CHANNEL CONTROL                 */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
                 IPTV CHANNEL CONTROL
               </h2>
+
+
+              {/* IPTV SELECT */}
 
               <div className="form-control">
 
@@ -1468,22 +1616,33 @@ const CHANNEL_DESCRIPTIONS = {
                     setUpdateIptvIp(e.target.value)
                   }
                 >
-                  {Array.from({ length: 17 }, (_, i) => {
-                    const iptvNumber = i + 1;
-                    const ip = `10.250.1.${131 + i}`;
 
-                    return (
-                      <option
-                        key={iptvNumber}
-                        value={ip}
-                      >
-                        IPTV {iptvNumber} ({ip})
-                      </option>
-                    );
-                  })}
+                  {Array.from(
+                    { length: 17 },
+                    (_, i) => {
+
+                      const iptvNumber = i + 1;
+
+                      const ip =
+                        `10.250.1.${131 + i}`;
+
+                      return (
+                        <option
+                          key={iptvNumber}
+                          value={ip}
+                        >
+                          IPTV {iptvNumber} ({ip})
+                        </option>
+                      );
+                    }
+                  )}
+
                 </select>
 
               </div>
+
+
+              {/* CHANNEL SELECT */}
 
               <div className="form-control">
 
@@ -1500,29 +1659,40 @@ const CHANNEL_DESCRIPTIONS = {
                     setUpdateChannel(e.target.value)
                   }
                 >
-                  {Array.from({ length: 1231 }, (_, i) => {
-                    const channelNumber = i + 1;
 
-                    const desc =
-                      CHANNEL_DESCRIPTIONS[channelNumber] ||
-                      'BLANK';
+                  {Array.from(
+                    { length: 1231 },
+                    (_, i) => {
 
-                    return (
-                      <option
-                        key={channelNumber}
-                        value={channelNumber}
-                      >
-                        {channelNumber} - {desc}
-                      </option>
-                    );
-                  })}
+                      const channelNumber =
+                        i + 1;
+
+                      const desc =
+                        CHANNEL_DESCRIPTIONS[
+                          channelNumber
+                        ] || 'BLANK';
+
+                      return (
+                        <option
+                          key={channelNumber}
+                          value={channelNumber}
+                        >
+                          {channelNumber} - {desc}
+                        </option>
+                      );
+                    }
+                  )}
+
                 </select>
 
               </div>
 
+
               <button
                 className="btn btn-primary btn-sm w-full mt-1"
-                onClick={handleUpdateIptvChannel}
+                onClick={
+                  handleUpdateIptvChannel
+                }
                 disabled={updateLoading}
               >
                 {updateLoading
@@ -1531,91 +1701,114 @@ const CHANNEL_DESCRIPTIONS = {
               </button>
 
             </div>
+
           </div>
 
-          {/* IPTV REBOOT / PORT RESET */}
+
+          {/* ==================================== */}
+          {/* IPTV REBOOT / RESET                  */}
+          {/* ==================================== */}
+
           <div className="space-y-1.5">
 
-            {Array.from({ length: 17 }, (_, i) => {
+            {Array.from(
+              { length: 17 },
+              (_, i) => {
 
-              const streamNumber = 101 + i;
-              const iptvNumber = i + 1;
+                const streamNumber =
+                  101 + i;
 
-              const label =
-                streamNumber === 117
-                  ? 'IPTV 17'
-                  : customLabels[streamNumber] ||
-                    `IPTV ${iptvNumber}`;
+                const iptvNumber =
+                  i + 1;
 
-              return (
-                <div
-                  key={iptvNumber}
-                  className="
-                    bg-base-200
-                    rounded-lg
-                    px-3
-                    py-2
-                    flex
-                    items-center
-                    justify-between
-                    gap-2
-                  "
-                >
-                  <span className="
-                    text-xs
-                    font-semibold
-                    text-accent
-                    whitespace-nowrap
-                  ">
-                    {label}
-                  </span>
+                const label =
+                  streamNumber === 117
+                    ? 'IPTV 17'
+                    : customLabels[
+                        streamNumber
+                      ] ||
+                      `IPTV ${iptvNumber}`;
 
-                  <div className="flex gap-1">
+                return (
+                  <div
+                    key={iptvNumber}
+                    className="
+                      bg-base-200
+                      rounded-lg
+                      px-3
+                      py-2
+                      flex
+                      items-center
+                      justify-between
+                      gap-2
+                    "
+                  >
 
-                    <button
-                      disabled={
-                        rebootLoading &&
-                        modalIptvNumber === iptvNumber
-                      }
-                      className="btn btn-xs btn-warning"
-                      onClick={() =>
-                        openConfirmation(
-                          'Reboot',
-                          iptvNumber
-                        )
-                      }
+                    <span
+                      className="
+                        text-xs
+                        font-semibold
+                        text-accent
+                        whitespace-nowrap
+                      "
                     >
-                      {rebootLoading &&
-                      modalIptvNumber === iptvNumber
-                        ? '...'
-                        : 'Reboot'}
-                    </button>
+                      {label}
+                    </span>
 
-                    <button
-                      className="btn btn-xs btn-error"
-                      onClick={() =>
-                        openConfirmation(
-                          'Port Reset',
+                    <div className="flex gap-1">
+
+                      <button
+                        disabled={
+                          rebootLoading &&
+                          modalIptvNumber ===
+                            iptvNumber
+                        }
+                        className="btn btn-xs btn-warning"
+                        onClick={() =>
+                          openConfirmation(
+                            'Reboot',
+                            iptvNumber
+                          )
+                        }
+                      >
+                        {rebootLoading &&
+                        modalIptvNumber ===
                           iptvNumber
-                        )
-                      }
-                    >
-                      Reset
-                    </button>
+                          ? '...'
+                          : 'Reboot'}
+                      </button>
+
+                      <button
+                        className="btn btn-xs btn-error"
+                        onClick={() =>
+                          openConfirmation(
+                            'Port Reset',
+                            iptvNumber
+                          )
+                        }
+                      >
+                        Reset
+                      </button>
+
+                    </div>
 
                   </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
 
           </div>
 
-        </aside>
-      </div>
+        </div>
+      </aside>
 
-      {/* CONFIRMATION MODAL */}
+
+      {/* ======================================== */}
+      {/* CONFIRMATION MODAL                       */}
+      {/* ======================================== */}
+
       {showModal && (
-        <dialog className="modal modal-open">
+        <dialog className="modal modal-open z-[100]">
 
           <div className="modal-box">
 
@@ -1624,15 +1817,20 @@ const CHANNEL_DESCRIPTIONS = {
             </h3>
 
             <p className="py-4">
+
               Are you sure you want to{' '}
+
               <span className="font-bold">
                 {modalAction}
               </span>{' '}
+
               IPTV{' '}
+
               <span className="text-accent">
                 {modalIptvNumber}
               </span>
               ?
+
             </p>
 
             <div className="modal-action">

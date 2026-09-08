@@ -14,12 +14,12 @@ export default function SidebarNavigation() {
       href: '/',
     },
     {
-      icon: '🎛️',
+      icon: '📟',
       label: 'CC AMX',
       href: '/cc-amx',
     },
     {
-      icon: '📡',
+      icon: '🏔️',
       label: 'Alps1 AMX',
       href: '/alps1-amx',
     },

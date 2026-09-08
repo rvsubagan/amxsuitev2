@@ -222,10 +222,6 @@ export default function Home({session}) {
         </h1>
 
         <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-base-content/70">
-            Welcome, {username}
-          </span>
-
           <button
             onClick={handleLogout}
             className="btn btn-xs md:btn-sm btn-outline btn-error"

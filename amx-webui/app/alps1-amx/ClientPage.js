@@ -17,7 +17,6 @@ export default function Home({ session }) {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState('');
   const [modalIptvNumber, setModalIptvNumber] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rebootLoading, setRebootLoading] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true); // ✅ NEW
   const [busy, setBusy] = useState(false);
@@ -25,7 +24,7 @@ export default function Home({ session }) {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
   const [updateIptvIp, setUpdateIptvIp] = useState('10.250.1.31');
   const [updateChannel, setUpdateChannel] = useState('1');
-
+  const [controlsOpen, setControlsOpen] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('');
   const handleLogout = () => {
@@ -889,15 +888,15 @@ return (
     className="h-dvh bg-base-100 flex overflow-hidden"
     data-theme="dark"
   >
-    <SidebarNavigation
-      sidebarOpen={sidebarOpen}
-      setSidebarOpen={setSidebarOpen}
-    />
+    <SidebarNavigation />
 
-    {/* MAIN APPLICATION AREA */}
-    <main className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+    {/* MAIN APPLICATION */}
+    <main className="relative flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
 
-      {/* COMPACT HEADER */}
+      {/* ======================================== */}
+      {/* HEADER                                   */}
+      {/* ======================================== */}
+
       <header
         className="
           h-12
@@ -908,98 +907,183 @@ return (
           px-3
           border-b
           border-base-content/10
+          bg-base-100
+          z-30
         "
       >
         <h1 className="text-lg md:text-xl font-bold text-primary truncate">
           🖥️ Alps1 AMX System
         </h1>
 
-        <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-base-content/70">
-            Welcome, {username}
-          </span>
+        <div className="flex items-center gap-2">
+
+          <button
+            onClick={() => setControlsOpen(true)}
+            className="btn btn-sm btn-primary"
+          >
+            🎛 Controls
+          </button>
 
           <button
             onClick={handleLogout}
-            className="btn btn-xs md:btn-sm btn-outline btn-error"
+            className="btn btn-sm btn-outline btn-error"
             title="Logout"
           >
             Logout
           </button>
+
         </div>
       </header>
 
-      {/* PLAYER + CONTROL PANEL */}
-      <div
+
+      {/* ======================================== */}
+      {/* WEB PLAYER                               */}
+      {/* ======================================== */}
+
+      <section
         className="
           flex-1
-          min-h-0
           min-w-0
-          grid
-          grid-cols-1
-          lg:grid-cols-[minmax(0,1fr)_320px]
-          gap-2
+          min-h-0
           p-2
           overflow-hidden
         "
       >
-
-        {/* ===================================== */}
-        {/* WEB PLAYER                            */}
-        {/* ===================================== */}
-        <section
+        <div
           className="
-            min-w-0
-            min-h-0
-            flex
-            items-start
-            justify-center
-            overflow-hidden
+            relative
+            w-full
+            h-full
             bg-black
             rounded-lg
+            overflow-hidden
           "
         >
-          <div
-            className="
-              w-full
-              aspect-video
-              bg-black
-              relative
-              overflow-hidden
-            "
-          >
-            <iframe
-              src="http://172.18.61.53:1984/stream.html?src=cam2"
-              className="absolute inset-0 w-full h-full border-0"
-              scrolling="no"
-              allow="autoplay; fullscreen; camera; microphone"
-              allowFullScreen
-            />
-          </div>
-        </section>
+          <iframe
+            src="http://172.18.61.53:1984/stream.html?src=cam2"
+            className="absolute inset-0 w-full h-full border-0"
+            scrolling="no"
+            allow="autoplay; fullscreen; camera; microphone"
+            allowFullScreen
+          />
+        </div>
+      </section>
 
-        {/* ===================================== */}
-        {/* CONTROL PANEL                         */}
-        {/* ===================================== */}
-        <aside
+
+      {/* ======================================== */}
+      {/* BACKDROP                                 */}
+      {/* ======================================== */}
+
+      {controlsOpen && (
+        <button
+          type="button"
           className="
+            absolute
+            inset-0
+            top-12
+            z-40
+            bg-black/40
+          "
+          onClick={() => setControlsOpen(false)}
+          aria-label="Close controls"
+        />
+      )}
+
+
+      {/* ======================================== */}
+      {/* SLIDE-OUT CONTROL PANEL                  */}
+      {/* ======================================== */}
+
+      <aside
+        className={`
+          absolute
+          right-0
+          top-12
+          bottom-0
+          z-50
+
+          w-[340px]
+          max-w-[90vw]
+
+          bg-base-100
+          border-l
+          border-base-content/10
+          shadow-2xl
+
+          flex
+          flex-col
+
+          transition-transform
+          duration-200
+          ease-out
+
+          ${
+            controlsOpen
+              ? 'translate-x-0'
+              : 'translate-x-full'
+          }
+        `}
+      >
+
+        {/* DRAWER HEADER */}
+
+        <div
+          className="
+            h-12
+            shrink-0
+            flex
+            items-center
+            justify-between
+            px-3
+            border-b
+            border-base-content/10
+            bg-base-200
+          "
+        >
+          <div className="font-bold text-sm">
+            🎛 Controls
+          </div>
+
+          <button
+            onClick={() => setControlsOpen(false)}
+            className="btn btn-sm btn-square btn-ghost"
+            aria-label="Close controls"
+          >
+            ✕
+          </button>
+        </div>
+
+
+        {/* SCROLLABLE CONTROLS */}
+
+        <div
+          className="
+            flex-1
             min-h-0
             overflow-y-auto
             overscroll-contain
+            p-2
             space-y-2
-            pr-1
           "
         >
 
-          {/* VIDEO ROUTING CONTROL */}
+          {/* ==================================== */}
+          {/* VIDEO ROUTING CONTROL                */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
                 VIDEO ROUTING CONTROL
               </h2>
 
+
+              {/* DESTINATION */}
+
               <div className="form-control">
+
                 <label className="label py-1">
                   <span className="label-text text-xs">
                     Destination
@@ -1017,13 +1101,21 @@ return (
                     DEC - Web Player
                   </option>
 
-                  <option value="172.18.92.152" disabled>
+                  <option
+                    value="172.18.92.152"
+                    disabled
+                  >
                     DEC - Staging Decoder
                   </option>
                 </select>
+
               </div>
 
+
+              {/* SOURCE */}
+
               <div className="form-control">
+
                 <label className="label py-1">
                   <span className="label-text text-xs">
                     Source
@@ -1045,7 +1137,9 @@ return (
                     )
                   }
                 >
+
                   {Array.from({ length: 49 }, (_, i) => {
+
                     const streamNumber = 201 + i;
 
                     const label =
@@ -1061,29 +1155,42 @@ return (
                       </option>
                     );
                   })}
+
                 </select>
+
               </div>
+
 
               <button
                 className="btn btn-primary btn-sm w-full mt-1"
                 disabled={busy}
                 onClick={switchStream}
               >
-                {busy ? 'Switching...' : 'Set Stream'}
+                {busy
+                  ? 'Switching...'
+                  : 'Set Stream'}
               </button>
 
             </div>
+
           </div>
 
-          {/* IPTV CHANNEL CONTROL */}
+
+          {/* ==================================== */}
+          {/* IPTV CHANNEL CONTROL                 */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
                 IPTV CHANNEL CONTROL
               </h2>
 
+
               {/* IPTV SELECT */}
+
               <div className="form-control">
 
                 <label className="label py-1">
@@ -1104,10 +1211,13 @@ return (
                     setUpdateIptvIp(e.target.value)
                   }
                 >
+
                   {Array.from({ length: 28 }, (_, i) => {
 
                     const iptvNumber = i + 1;
-                    const ip = `10.250.1.${31 + i}`;
+
+                    const ip =
+                      `10.250.1.${31 + i}`;
 
                     return (
                       <option
@@ -1118,11 +1228,14 @@ return (
                       </option>
                     );
                   })}
+
                 </select>
 
               </div>
 
+
               {/* CHANNEL SELECT */}
+
               <div className="form-control">
 
                 <label className="label py-1">
@@ -1143,6 +1256,7 @@ return (
                     setUpdateChannel(e.target.value)
                   }
                 >
+
                   {CHANNELS.map((channel) => (
                     <option
                       key={channel.id}
@@ -1151,9 +1265,11 @@ return (
                       {channel.id} - {channel.name}
                     </option>
                   ))}
+
                 </select>
 
               </div>
+
 
               <button
                 className="btn btn-primary btn-sm w-full mt-1"
@@ -1166,10 +1282,16 @@ return (
               </button>
 
             </div>
+
           </div>
 
-          {/* CHANNEL PRESETS */}
+
+          {/* ==================================== */}
+          {/* CHANNEL PRESETS                      */}
+          {/* ==================================== */}
+
           <div className="card bg-base-200 shadow-md">
+
             <div className="card-body p-3 gap-2">
 
               <h2 className="text-sm font-bold text-accent">
@@ -1193,9 +1315,14 @@ return (
               </div>
 
             </div>
+
           </div>
 
-          {/* IPTV REBOOT / PORT RESET */}
+
+          {/* ==================================== */}
+          {/* IPTV REBOOT / PORT RESET             */}
+          {/* ==================================== */}
+
           <div className="space-y-1.5">
 
             {Array.from({ length: 28 }, (_, i) => {
@@ -1228,6 +1355,7 @@ return (
                     IPTV {iptvNumber}
                   </span>
 
+
                   <div className="flex gap-1">
 
                     <button
@@ -1249,6 +1377,7 @@ return (
                         : 'Reboot'}
                     </button>
 
+
                     <button
                       className="btn btn-xs btn-error"
                       onClick={() =>
@@ -1262,18 +1391,24 @@ return (
                     </button>
 
                   </div>
+
                 </div>
               );
             })}
 
           </div>
 
-        </aside>
-      </div>
+        </div>
+      </aside>
 
-      {/* CONFIRMATION MODAL */}
+
+      {/* ======================================== */}
+      {/* CONFIRMATION MODAL                       */}
+      {/* ======================================== */}
+
       {showModal && (
-        <dialog className="modal modal-open">
+
+        <dialog className="modal modal-open z-[100]">
 
           <div className="modal-box">
 
@@ -1282,16 +1417,22 @@ return (
             </h3>
 
             <p className="py-4">
+
               Are you sure you want to{' '}
+
               <span className="font-bold">
                 {modalAction}
               </span>{' '}
+
               IPTV{' '}
+
               <span className="text-accent">
                 {modalIptvNumber}
               </span>
               ?
+
             </p>
+
 
             <div className="modal-action">
 
@@ -1319,6 +1460,7 @@ return (
       )}
 
     </main>
+
   </div>
 );
 }
