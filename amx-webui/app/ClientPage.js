@@ -1,42 +1,40 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import SidebarNavigation from '@/components/SidebarNavigation';
 
 export default function Home({ session }) {
-  const router = useRouter();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [deviceStatuses1, setDeviceStatuses1] = useState([]);
   const [deviceStatuses2, setDeviceStatuses2] = useState([]);
   const [isLoading1, setIsLoading1] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
 
-  const formattedTime = currentTime.toLocaleTimeString();
-  const formattedDate = currentTime.toLocaleDateString();
-  const username = session?.user?.name || session?.user?.email || 'User';
+  const username =
+    session?.user?.name ||
+    session?.user?.email ||
+    'User';
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/' });
   };
 
   useEffect(() => {
-    const clock = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(clock);
-  }, []);
-
-  useEffect(() => {
     const fetchStatuses1 = async () => {
       try {
         setIsLoading1(true);
+
         const res = await fetch('/api/ping-devices');
         const data = await res.json();
+
         setDeviceStatuses1(data);
       } catch (err) {
-        console.error('Error fetching CC device status:', err);
+        console.error(
+          'Error fetching CC device status:',
+          err
+        );
       } finally {
         setIsLoading1(false);
       }
@@ -45,11 +43,16 @@ export default function Home({ session }) {
     const fetchStatuses2 = async () => {
       try {
         setIsLoading2(true);
+
         const res = await fetch('/api/ping-devices2');
         const data = await res.json();
+
         setDeviceStatuses2(data);
       } catch (err) {
-        console.error('Error fetching Alps1 device status:', err);
+        console.error(
+          'Error fetching Alps1 device status:',
+          err
+        );
       } finally {
         setIsLoading2(false);
       }
@@ -66,72 +69,278 @@ export default function Home({ session }) {
     return () => clearInterval(interval);
   }, []);
 
-  const DeviceSection = ({ title, isLoading, devices }) => (
-    <div className="rounded-2xl bg-base-200 p-6 mt-10 border border-base-content/10 shadow-xl">
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold text-primary">{title}</h2>
-        {isLoading && (
-          <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
-        )}
-      </div>
+  const DeviceSection = ({
+    title,
+    isLoading,
+    devices
+  }) => {
+    const onlineCount = devices.filter(
+      (device) => device.status === 'online'
+    ).length;
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {devices.map((device, index) => (
+    const offlineCount =
+      devices.length - onlineCount;
+
+    return (
+      <section
+        className="
+          card
+          bg-base-200
+          border
+          border-base-content/10
+          shadow-md
+        "
+      >
+        <div className="card-body p-3 md:p-4 gap-3">
+
+          {/* SECTION HEADER */}
           <div
-            key={index}
-            className="bg-base-100 p-4 rounded-xl shadow flex justify-between items-center border border-base-content/10"
+            className="
+              flex
+              flex-wrap
+              items-center
+              justify-between
+              gap-2
+            "
           >
-            <p className="text-lg font-semibold">{device.name}</p>
-            <span
-              className={`badge badge-lg ${
-                device.status === 'online' ? 'badge-success' : 'badge-error'
-              }`}
-            >
-              {device.status.toUpperCase()}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+            <div className="flex items-center gap-2 min-w-0">
 
-  return (
-    <div className="min-h-screen bg-base-100 flex" data-theme="dark">
-      <SidebarNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
-      <div className="flex-1 p-6 md:p-10 overflow-x-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold text-primary">🖥️ AMX Device Dashboard</h1>
-          <div className="text-right text-lg font-mono text-base-content/70">
-            {/* <div>{formattedDate}</div>
-            <div>{formattedTime}</div> */}
-            <div className="text-sm mt-1 flex items-center gap-3">
-              <span>Welcome, {username}</span>
-              <button
-                onClick={handleLogout}
-                className="btn btn-sm btn-outline btn-error"
+              <h2
+                className="
+                  text-sm
+                  md:text-base
+                  font-bold
+                  text-primary
+                  truncate
+                "
               >
-                Logout
-              </button>
+                {title}
+              </h2>
+
+              {isLoading && (
+                <span className="loading loading-spinner loading-xs text-primary" />
+              )}
+
+            </div>
+
+            {/* SUMMARY */}
+            <div className="flex items-center gap-1.5">
+
+              <span className="badge badge-success badge-sm">
+                {onlineCount} Online
+              </span>
+
+              <span className="badge badge-error badge-sm">
+                {offlineCount} Offline
+              </span>
+
             </div>
           </div>
+
+          {/* DEVICE GRID */}
+          <div
+            className="
+              grid
+              grid-cols-1
+              sm:grid-cols-2
+              md:grid-cols-3
+              xl:grid-cols-4
+              2xl:grid-cols-5
+              gap-2
+            "
+          >
+
+            {devices.map((device, index) => {
+
+              const isOnline =
+                device.status === 'online';
+
+              return (
+                <div
+                  key={index}
+                  className="
+                    bg-base-100
+                    rounded-lg
+                    border
+                    border-base-content/10
+                    px-3
+                    py-2.5
+                    flex
+                    items-center
+                    justify-between
+                    gap-2
+                    min-w-0
+                  "
+                >
+
+                  <div className="min-w-0">
+
+                    <p
+                      className="
+                        text-sm
+                        font-semibold
+                        truncate
+                      "
+                      title={device.name}
+                    >
+                      {device.name}
+                    </p>
+
+                  </div>
+
+                  <span
+                    className={`
+                      badge
+                      badge-sm
+                      shrink-0
+                      font-semibold
+                      ${
+                        isOnline
+                          ? 'badge-success'
+                          : 'badge-error'
+                      }
+                    `}
+                  >
+                    {isOnline ? 'ONLINE' : 'OFFLINE'}
+                  </span>
+
+                </div>
+              );
+            })}
+
+            {!isLoading && devices.length === 0 && (
+              <div
+                className="
+                  col-span-full
+                  py-6
+                  text-center
+                  text-sm
+                  text-base-content/50
+                "
+              >
+                No devices found.
+              </div>
+            )}
+
+          </div>
+
+        </div>
+      </section>
+    );
+  };
+
+  return (
+    <div
+      className="
+        h-dvh
+        bg-base-100
+        flex
+        overflow-hidden
+      "
+      data-theme="dark"
+    >
+
+      <SidebarNavigation
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
+
+      {/* MAIN APPLICATION AREA */}
+      <main
+        className="
+          flex-1
+          min-w-0
+          min-h-0
+          flex
+          flex-col
+          overflow-hidden
+        "
+      >
+
+        {/* COMPACT HEADER */}
+        <header
+          className="
+            h-12
+            shrink-0
+            flex
+            items-center
+            justify-between
+            px-3
+            border-b
+            border-base-content/10
+          "
+        >
+
+          <h1
+            className="
+              text-lg
+              md:text-xl
+              font-bold
+              text-primary
+              truncate
+            "
+          >
+            🖥️ AMX Device Dashboard
+          </h1>
+
+          <div className="flex items-center gap-3 text-sm">
+
+            <span
+              className="
+                hidden
+                sm:inline
+                text-base-content/70
+              "
+            >
+              Welcome, {username}
+            </span>
+
+            <button
+              onClick={handleLogout}
+              className="
+                btn
+                btn-xs
+                md:btn-sm
+                btn-outline
+                btn-error
+              "
+            >
+              Logout
+            </button>
+
+          </div>
+
+        </header>
+
+        {/* DASHBOARD */}
+        <div
+          className="
+            flex-1
+            min-h-0
+            overflow-y-auto
+            p-2
+          "
+        >
+
+          <div className="space-y-2">
+
+            <DeviceSection
+              title="🔌 CC AMX Connectivity Overview"
+              isLoading={isLoading1}
+              devices={deviceStatuses1}
+            />
+
+            <DeviceSection
+              title="🔌 Alps1 AMX Connectivity Overview"
+              isLoading={isLoading2}
+              devices={deviceStatuses2}
+            />
+
+          </div>
+
         </div>
 
-        {/* Section 1 */}
-        <DeviceSection
-          title="🔌 CC AMX Connectivity Overview"
-          isLoading={isLoading1}
-          devices={deviceStatuses1}
-        />
-
-        {/* Section 2 */}
-        <DeviceSection
-          title="🔌 Alps1 AMX Connectivity Overview"
-          isLoading={isLoading2}
-          devices={deviceStatuses2}
-        />
-      </div>
+      </main>
     </div>
   );
 }
